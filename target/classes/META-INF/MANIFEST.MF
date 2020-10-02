@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: deepakpal
+Build-Jdk: 14.0.2
+Implementation-Title: Spring Boot Course API
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.courseapi.springbootquickstart
+Implementation-Vendor: Pivotal Software, Inc.
+Implementation-URL: http://projects.spring.io/spring-boot/course-api/
+Created-By: Maven Integration for Eclipse
+
