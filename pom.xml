@@ -20,6 +20,32 @@
   
   
   </dependencies>
+  <repositories>
+      <repository>
+          <id>artifactory</id>
+          <name>Artifactory</name>
+          <url>https://deepakpalartifactory.jfrog.io/artifactory/maven-repo/</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+      </repository>
+  </repositories>
+  <pluginRepositories>
+      <pluginRepository>
+          <id>artifactory</id>
+          <name>Artifactory</name>
+          <url>https://deepakpalartifactory.jfrog.io/artifactory/maven-repo/</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+      </pluginRepository>
+  </pluginRepositories>
   
   <properties>
       <java.version>1.8</java.version>
