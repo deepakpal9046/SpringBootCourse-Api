@@ -11,7 +11,6 @@ pipeline {
 	stages {
     
       stage("Provisioning agent")
-      agent {label 'test-server'}
 
       stages {
 
