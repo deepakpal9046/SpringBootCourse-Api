@@ -8,12 +8,7 @@ pipeline {
 	  ARTIFACTORY_REPO="maven-repo"
 	}
 
-	stages {
-    
-      stage("Provisioning agent")
-
-      stages {
-
+stages {
         stage("Prepare") {
           steps {
             checkout scm
@@ -62,7 +57,6 @@ pipeline {
             }
           }
         } 
-      }
 
 	}
 }
