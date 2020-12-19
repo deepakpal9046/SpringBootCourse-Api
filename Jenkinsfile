@@ -1,62 +1,54 @@
 pipeline {
-	agent none
-	options { skipDefaultCheckout(true)}
-
-	environment {
-	  MAVEN_TOOL="apache-maven-3.5.3(default)"
-	  ARTIFACTORY_URL="https://deepakpalartifactory.jfrog.io/ui/admin/repositories/local"
-	  ARTIFACTORY_REPO="maven-repo"
-	}
-
-stages {
-        stage("Prepare") {
-          steps {
-            checkout scm
-            script {
-              artifactoryServer = Artifactory.newServer url: ARTIFACTORY_URL, username: "${env.ARTIFACTORY_ACCESS_USR}", password: "{env.ARTIFACTORY_ACCESS_PSW}"
-              artifactoryMaven = Artifactory.newMavenBuild()
-              artifactoryMaven.tool = MAVEN_TOOL
-              artifactoryMaven.resolver releaseRepo: ARTIFACTORY_REPO, snapshotRepo: ARTIFACTORY_REPO, server: artifactoryServer
+    agent any
+    stages {
+        stage ('Clone') {
+            steps {
+                git branch: 'master', url: "https://github.com/deepakpal9046/SpringBootCourse-Api.git"
             }
-          }
         }
 
-        stage("Build") {
-          steps {
-            script{
-              artifactoryMaven.run pom: 'pom.xml', goals: 'clean install -DskipTests=true'
+        stage ('Artifactory configuration') {
+            steps {
+                rtServer (
+                    id: "ARTIFACTORY_SERVER",
+                    url: https://deepakpalartifactory.jfrog.io/artifactory/maven-repo/,
+                    credentialsId: jfrog
+                )
+
+                rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: "ARTIFACTORY_SERVER",
+                    releaseRepo: "libs-release-local",
+                    snapshotRepo: "libs-snapshot-local"
+                )
+
+                rtMavenResolver (
+                    id: "MAVEN_RESOLVER",
+                    serverId: "ARTIFACTORY_SERVER",
+                    releaseRepo: "maven-repo",
+                    snapshotRepo: "maven-repo"
+                )
             }
-          }
         }
 
-        stage("Unit Tests") {
-          when { not { expression { return params.skipTest } } }
-          steps {
-            script{
-              artifactoryMaven.run pom: 'pom.xml', goals: 'test'
-              junit '**/target/surefire-reports/TEST-*.xml'
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: MAVEN_TOOL, // Tool name from Jenkins configuration
+                    pom: 'maven-example/pom.xml',
+                    goals: 'clean install',
+                    deployerId: "MAVEN_DEPLOYER",
+                    resolverId: "MAVEN_RESOLVER"
+                )
             }
-          }
         }
 
-        stage('Push to Artifactory (opcofr-maven-local-dev)') {
-          steps{
-            script{
-              def mvn_pom = readMavenPom file: 'pom.xml'
-              def path = "opcofr-maven-local-dev/" + mvn_pom.groupId.replaceAll("\\.","/")
-
-              uploadSpec = """{
-                "files": [
-                  { "pattern": "pom.xml",    "target": "${path}/JEBO001M/${mvn_pom.version}/JEBO001M-${mvn_pom.version}.pom" },
-                  { "pattern": "**/JEBO001M-${mvn_pom.version}.jar",    "target": "${path}/JEBO001M/${mvn_pom.version}/JEBO001M-${mvn_pom.version}.jar" },
-                  { "pattern": "**/JEBO001M-${mvn_pom.version}-batch.jar",    "target": "${path}/JEBO001M/${mvn_pom.version}/JEBO001M-${mvn_pom.version}-batch.tar" }
-                  ]
-              }"""
-              buildInfo = artifactoryServer.upload uploadSpec
-              artifactoryServer.publishBuildInfo buildInfo
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "ARTIFACTORY_SERVER"
+                )
             }
-          }
-        } 
-
-	}
+        }
+    }
 }
