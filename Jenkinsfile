@@ -4,7 +4,7 @@ pipeline {
 
 	environment {
 	  MAVEN_TOOL="apache-maven-3.5.3(default)"
-	  ARTIFACTORY_URL="https://deepakpalartifactory.jfrog.io/ui/admin/repositories/local"
+	  ARTIFACTORY_URL="https://deepakpalartifactory.jfrog.io/ui/admin/repositories"
 	  ARTIFACTORY_REPO="maven-repo"
 	}
 
